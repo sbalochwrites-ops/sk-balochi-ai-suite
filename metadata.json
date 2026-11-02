@@ -1,0 +1,6 @@
+{
+  "name": "SK Balochi Khata & Architecture Studio",
+  "description": "Complete Roznamcha, Udhaar Khata, and AI Content Dataset Manager with full Database, DAO, ViewModel, Screens, and Components Tree Structure.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

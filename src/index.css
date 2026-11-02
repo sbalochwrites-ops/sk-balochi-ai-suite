@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #F6F5EF;
+  --surface: #FFFFFF;
+  --surface-2: #F1F1E9;
+  --primary: #1B5E20;
+  --primary-dark: #114216;
+  --primary-light: #E8F5E9;
+  --primary-container: #C8E6C9;
+  --text: #1A1C19;
+  --text-sec: #5A635A;
+  --text-ter: #8A938A;
+  --border: #E3E3DC;
+  --sale: #1B5E20;
+  --expense: #C62828;
+  --profit: #2E7D32;
+  --udhaar: #EF6C00;
+  --card-shadow: 0 2px 12px rgba(27, 94, 32, 0.05);
+}
+
+.dark {
+  --bg: #111411;
+  --surface: #1A1E1A;
+  --surface-2: #242924;
+  --primary: #4CAF50;
+  --primary-dark: #1B5E20;
+  --primary-light: #1B2E1D;
+  --primary-container: #233E26;
+  --text: #E8ECE8;
+  --text-sec: #A4B0A4;
+  --text-ter: #738073;
+  --border: #2C332C;
+  --sale: #4CAF50;
+  --expense: #EF5350;
+  --profit: #66BB6A;
+  --udhaar: #FFA726;
+  --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.urdu {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  line-height: 2.05;
+}
+
+.font-mono-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
