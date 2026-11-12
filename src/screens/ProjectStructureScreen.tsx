@@ -904,7 +904,7 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
       {/* Header Banner with Bilingual Context */}
       <section className="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-2 max-w-3xl">
+          <div className="space-y-3 max-w-3xl">
             <div className="flex items-center gap-2 text-xs text-[var(--text-sec)]">
               <span>Clean MVVM Architecture</span>
               <span aria-hidden="true">·</span>
@@ -913,16 +913,17 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
                 Components
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text)]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text)] leading-snug">
               Project Structure &amp; Complete Tree Hierarchy
             </h1>
-            <p
-              dir="rtl"
-              className="text-base sm:text-lg text-[var(--primary)] font-semibold urdu"
-            >
-              Project Structure: تمام کمپونینٹس، DAO، ڈیٹا بیس، ویو ماڈل، اور
-              سکرینز کا تفصیلی ٹری سٹرکچر۔
-            </p>
+            <div className="pt-2 pb-1">
+              <p
+                dir="rtl"
+                className="text-base sm:text-lg text-[var(--primary)] font-semibold urdu leading-loose"
+              >
+                تمام کمپونینٹس، DAO، ڈیٹا بیس، ویو ماڈل، اور سکرینز کا تفصیلی ٹری سٹرکچر
+              </p>
+            </div>
             <p className="text-sm text-[var(--text-sec)] leading-relaxed">
               Explore the complete architectural blueprint below. Click any
               module in the tree to inspect its Database schema, DAO queries,
@@ -931,11 +932,11 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
             <button
               type="button"
               onClick={() => handleCopy(FULL_ASCII_TREE, 'ascii-tree')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#1B5E20] hover:bg-[#114216] text-white text-xs font-semibold transition-colors min-h-[40px]"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#1B5E20] hover:bg-[#114216] text-white text-xs font-semibold transition-colors min-h-[40px] flex-1 sm:flex-none"
             >
               {copiedId === 'ascii-tree' ? (
                 <>
@@ -953,7 +954,7 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
             <button
               type="button"
               onClick={handleDownloadBlueprint}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)] transition-colors min-h-[40px]"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)] transition-colors min-h-[40px] flex-1 sm:flex-none"
             >
               <Download className="w-4 h-4 text-[var(--primary)]" />
               <span>Download Full Code (.txt)</span>
@@ -962,7 +963,7 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
             <button
               type="button"
               onClick={() => onNavigateTab('datasets')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)] transition-colors min-h-[40px]"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)] transition-colors min-h-[40px] w-full sm:w-auto"
             >
               <span>SK Balochi Datasets</span>
               <ArrowUpRight className="w-4 h-4" />

@@ -24,36 +24,42 @@ interface TopBarProps {
 const NAV_ITEMS: {
   id: ScreenTab;
   label: string;
+  shortLabel: string;
   labelUrdu: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
   {
     id: 'structure',
     label: 'Project Structure',
-    labelUrdu: 'پروجیکٹ ٹری سٹرکچر',
+    shortLabel: 'Structure',
+    labelUrdu: 'سٹرکچر',
     icon: FolderTree,
   },
   {
     id: 'roznamcha',
     label: 'Roznamcha',
+    shortLabel: 'Roznamcha',
     labelUrdu: 'روزنامچہ',
     icon: BookOpen,
   },
   {
     id: 'khata',
     label: 'Udhaar Khata',
-    labelUrdu: 'ادھار کھاتہ',
+    shortLabel: 'Khata',
+    labelUrdu: 'ادھار',
     icon: Users,
   },
   {
     id: 'datasets',
     label: 'AI Datasets & Cloud',
-    labelUrdu: 'ڈیٹا سیٹس',
+    shortLabel: 'Datasets',
+    labelUrdu: 'ڈیٹا سیٹ',
     icon: Database,
   },
   {
     id: 'reports',
     label: 'Reports',
+    shortLabel: 'Reports',
     labelUrdu: 'رپورٹس',
     icon: ChartColumn,
   },
@@ -127,13 +133,13 @@ export const TopBar: React.FC<TopBarProps> = ({
               key={item.id}
               type="button"
               onClick={() => onSelectTab(item.id)}
-              className={`flex flex-col items-center justify-center min-h-[44px] min-w-[44px] transition-colors ${
+              className={`flex flex-col items-center justify-center min-h-[44px] min-w-[44px] transition-colors py-1 ${
                 isActive ? 'text-[var(--primary)] font-semibold' : 'text-[var(--text-sec)]'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] tracking-tight mt-1 truncate max-w-[68px]">
-                {item.label}
+              <Icon className="w-5 h-5 shrink-0" />
+              <span className="text-[11px] font-medium tracking-tight mt-1 whitespace-nowrap">
+                {item.shortLabel}
               </span>
             </button>
           );

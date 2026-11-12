@@ -22,7 +22,7 @@ export default function App() {
   const vm = useAppViewModel();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] pb-20 md:pb-8">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] pb-28 md:pb-12">
       <TopBar
         activeTab={activeTab}
         onSelectTab={setActiveTab}

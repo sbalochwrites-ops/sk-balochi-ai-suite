@@ -47,8 +47,8 @@ body {
 }
 
 .urdu {
-  font-family: 'Noto Nastaliq Urdu', serif;
-  line-height: 2.05;
+  font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+  line-height: 2.2;
 }
 
 .font-mono-num {
