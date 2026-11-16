@@ -781,13 +781,15 @@ export default function App() {
   },
 ];
 
-const FULL_ASCII_TREE = `SK_Balochi_Khata_Project/
+const FULL_ASCII_TREE = `SK_AI_Studio/
+├── server.ts                         # Express + Vite SSR/Middleware + Gemini 2.5 Flash Proxy
+│
 ├── database/                         # 01. ڈیٹا بیس لیئر (Room / Local Persistence)
-│   ├── AppDatabase.kt (.ts)          # مرکزی سنگلٹن ڈیٹا بیس اور ٹیبل کنفیگریشن
+│   ├── AppDatabase.kt (.ts)          # مرکزی سنگلٹن ڈیٹا بیس، JSON بیک اپ اور ٹیبل کنفیگریشن
 │   └── Entities.kt (.ts)             # Transaction, Customer, KhataEntry, Dataset ٹیبلز
 │
 ├── dao/                              # 02. ڈی اے او لیئر (Data Access Objects)
-│   ├── TransactionDao.kt (.ts)       # روزنامچہ بکری، خرچہ اور نقد گلہ کیوریز
+│   ├── TransactionDao.kt (.ts)       # روزنامچہ بکری، خرچہ اور خودکار کھاتہ سنک کیوریز
 │   ├── CustomerKhataDao.kt (.ts)     # گاہک کھاتہ، ادھار اور وصولی بیلنس کیوریز
 │   └── DatasetDao.kt (.ts)           # SK_Balochi_Content_Dataset & Ecom_Bot کیوریز
 │
@@ -798,14 +800,16 @@ const FULL_ASCII_TREE = `SK_Balochi_Khata_Project/
 ├── screens/                          # 04. سکرینز لیئر (UI Screens)
 │   ├── ProjectStructureScreen.tsx    # تمام کمپونینٹس، DAO، ڈیٹا بیس اور سکرینز کا ٹری
 │   ├── RoznamchaScreen.tsx           # روزانہ بکری، خرچہ اور نقد گلہ ڈیش بورڈ
-│   ├── UdhaarKhataScreen.tsx         # گاہک ادھار کھاتہ، لیجر اور واٹس ایپ ریمائنڈر
-│   ├── DatasetStudioScreen.tsx       # AI Studio Datasets & Gemini Cloud Assist
-│   └── ReportsScreen.tsx             # مالیاتی رپورٹس، کیٹیگری چارٹس اور CSV ایکسپورٹ
+│   ├── UdhaarKhataScreen.tsx         # گاہک ادھار کھاتہ، لیجر اور براہِ راست واٹس ایپ
+│   ├── DatasetStudioScreen.tsx       # AI Studio Datasets & لائیو Gemini 2.5 Flash ٹیسٹر
+│   └── ReportsScreen.tsx             # مالیاتی رپورٹس، D3 رجحان چارٹ اور JSON بیک اپ
 │
 ├── components/                       # 05. ری یوزایبل کمپونینٹس (UI Components)
 │   ├── TopBar.tsx                    # ڈیسک ٹاپ ٹاپ بار اور موبائل باٹم نیویگیشن
-│   ├── TransactionModal.tsx          # بکری اور خرچہ اندراج ڈائیلاگ
-│   └── CustomerModal.tsx             # نیا گاہک کھاتہ بنانے کا ڈائیلاگ
+│   ├── DashboardQuickActionWidgets.tsx# روزانہ بکری اور ادھار کے فوری ڈیش بورڈ ویجٹس
+│   ├── TransactionModal.tsx          # بکری اور خرچہ اندراج مع گاہک ادھار لنک
+│   ├── CustomerModal.tsx             # نیا گاہک کھاتہ بنانے کا ڈائیلاگ
+│   └── WeeklyProfitTrendChart.tsx    # 7-Day انٹرایکٹو ویکٹر D3 گراف
 │
 └── config/                           # 06. اینڈرائیڈ گریڈل اور مین انٹری پوائنٹ
     ├── build.gradle.kts              # Room, Hilt, Coroutines, Jetpack Compose Setup
@@ -855,8 +859,8 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
   const handleDownloadBlueprint = () => {
     const lines: string[] = [
       '====================================================================',
-      'SK BALOCHI KHATA & AI DATASET STUDIO - FULL PROJECT ARCHITECTURE',
-      'Project Structure: تمام کمپونینٹس، DAO، ڈیٹا بیس، ویو ماڈل، اور سکرینز کا تفصیلی ٹری سٹرکچر',
+      'SK AI STUDIO - FULL PROJECT ARCHITECTURE & TREE BLUEPRINT',
+      'تمام کمپونینٹس، DAO، ڈیٹا بیس، ویو ماڈل، اور سکرینز کا تفصیلی ٹری سٹرکچر',
       '====================================================================\n',
       FULL_ASCII_TREE,
       '\n====================================================================\n',
@@ -883,7 +887,7 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'SK_Balochi_Full_Project_Structure_And_Code.txt';
+    link.download = 'SK_AI_Studio_Full_Project_Structure_And_Code.txt';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -965,7 +969,7 @@ export const ProjectStructureScreen: React.FC<ProjectStructureScreenProps> = ({
               onClick={() => onNavigateTab('datasets')}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)] transition-colors min-h-[40px] w-full sm:w-auto"
             >
-              <span>SK Balochi Datasets</span>
+              <span>AI Studio Prompts</span>
               <ArrowUpRight className="w-4 h-4" />
             </button>
           </div>

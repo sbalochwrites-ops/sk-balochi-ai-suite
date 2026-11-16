@@ -1,5 +1,6 @@
 import { AppDatabase } from '../database/AppDatabase';
 import { TransactionEntity, TransactionType } from '../database/entities';
+import { customerKhataDao } from './CustomerKhataDao';
 
 export class TransactionDao {
   private db = AppDatabase.getInstance();
@@ -25,6 +26,19 @@ export class TransactionDao {
       ...prev,
       transactions: [newTx, ...prev.transactions],
     }));
+
+    // If transaction is on Udhaar (credit) and linked to a customer, create a Khata entry
+    if (newTx.paymentMode === 'UDHAAR' && newTx.customerId) {
+      customerKhataDao.recordKhataEntry({
+        customerId: newTx.customerId,
+        amount: newTx.amount,
+        entryType: newTx.type === 'SALE' ? 'GIVEN' : 'RECEIVED',
+        description: `${newTx.title} (${newTx.type === 'SALE' ? 'ادھار مال فروخت' : 'ادھار ادائیگی'})`,
+        date: newTx.date,
+        billNo: newTx.id,
+      });
+    }
+
     return newTx;
   }
 

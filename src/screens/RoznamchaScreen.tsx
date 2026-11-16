@@ -9,6 +9,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { TransactionEntity, TransactionType } from '../database/entities';
+import { ScreenTab } from '../components/TopBar';
+import { DashboardQuickActionWidgets } from '../components/DashboardQuickActionWidgets';
 
 interface RoznamchaScreenProps {
   transactions: TransactionEntity[];
@@ -26,7 +28,13 @@ interface RoznamchaScreenProps {
   txSearch: string;
   setTxSearch: (q: string) => void;
   onOpenNewEntry: () => void;
+  onOpenNewEntryWithType?: (
+    type?: TransactionType,
+    mode?: 'CASH' | 'ONLINE' | 'UDHAAR'
+  ) => void;
   onDeleteTransaction: (id: string) => void;
+  onNavigateTab?: (tab: ScreenTab) => void;
+  totalCustomersCount?: number;
 }
 
 export const RoznamchaScreen: React.FC<RoznamchaScreenProps> = ({
@@ -37,7 +45,10 @@ export const RoznamchaScreen: React.FC<RoznamchaScreenProps> = ({
   txSearch,
   setTxSearch,
   onOpenNewEntry,
+  onOpenNewEntryWithType,
   onDeleteTransaction,
+  onNavigateTab,
+  totalCustomersCount = 0,
 }) => {
   return (
     <div className="space-y-6">
@@ -63,6 +74,29 @@ export const RoznamchaScreen: React.FC<RoznamchaScreenProps> = ({
           <span>Add Sale / Expense (نیا اندراج)</span>
         </button>
       </div>
+
+      {/* Prominent Quick-Action Widgets Strip */}
+      <DashboardQuickActionWidgets
+        summaryMetrics={summaryMetrics}
+        totalCustomersCount={totalCustomersCount}
+        onQuickAddSale={() =>
+          onOpenNewEntryWithType
+            ? onOpenNewEntryWithType('SALE', 'CASH')
+            : onOpenNewEntry()
+        }
+        onQuickAddExpense={() =>
+          onOpenNewEntryWithType
+            ? onOpenNewEntryWithType('EXPENSE', 'CASH')
+            : onOpenNewEntry()
+        }
+        onQuickAddUdhaar={() =>
+          onOpenNewEntryWithType
+            ? onOpenNewEntryWithType('SALE', 'UDHAAR')
+            : onOpenNewEntry()
+        }
+        onNavigateTab={onNavigateTab ?? (() => {})}
+        onSetTxFilter={setTxFilter}
+      />
 
       {/* 4-Column KPI Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -217,7 +251,12 @@ export const RoznamchaScreen: React.FC<RoznamchaScreenProps> = ({
                       <td className="py-3.5 px-4 text-xs text-[var(--text-sec)] whitespace-nowrap">
                         <span>{tx.category}</span>
                         <span aria-hidden="true"> · </span>
-                        <span className="font-mono-num">{tx.paymentMode}</span>
+                        <span className="font-mono-num font-semibold">{tx.paymentMode}</span>
+                        {tx.customerName && (
+                          <div className="text-[11px] text-[var(--udhaar)] font-medium mt-0.5">
+                            Khata: {tx.customerName}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-xs font-mono-num text-[var(--text-sec)] whitespace-nowrap">
                         <div>{tx.date}</div>

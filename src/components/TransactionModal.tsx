@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { TransactionEntity, TransactionType } from '../database/entities';
+import React, { useState, useEffect } from 'react';
+import { X, UserCheck } from 'lucide-react';
+import { TransactionEntity, TransactionType, CustomerEntity } from '../database/entities';
+import { customerKhataDao } from '../dao/CustomerKhataDao';
 
 interface TransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (tx: Omit<TransactionEntity, 'id'>) => void;
+  initialType?: TransactionType;
+  initialPaymentMode?: 'CASH' | 'ONLINE' | 'UDHAAR';
 }
 
 const CATEGORIES = [
@@ -22,16 +25,32 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  initialType = 'SALE',
+  initialPaymentMode = 'CASH',
 }) => {
-  const [type, setType] = useState<TransactionType>('SALE');
+  const [type, setType] = useState<TransactionType>(initialType);
   const [title, setTitle] = useState('');
   const [titleUrdu, setTitleUrdu] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [paymentMode, setPaymentMode] = useState<'CASH' | 'ONLINE' | 'UDHAAR'>(
-    'CASH'
+    initialPaymentMode
   );
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [customers, setCustomers] = useState<CustomerEntity[]>([]);
   const [note, setNote] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setType(initialType);
+      setPaymentMode(initialPaymentMode);
+      const list = customerKhataDao.getAllCustomers();
+      setCustomers(list);
+      if (list.length > 0 && !selectedCustomerId) {
+        setSelectedCustomerId(list[0].id);
+      }
+    }
+  }, [isOpen, initialType, initialPaymentMode]);
 
   if (!isOpen) return null;
 
@@ -39,6 +58,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     e.preventDefault();
     const numericAmount = Number(amount);
     if (!title.trim() || !numericAmount || numericAmount <= 0) return;
+
+    const matchedCustomer =
+      paymentMode === 'UDHAAR'
+        ? customers.find((c) => c.id === selectedCustomerId)
+        : undefined;
 
     const now = new Date();
     onSave({
@@ -50,6 +74,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       type,
       category,
       paymentMode,
+      customerId: matchedCustomer?.id,
+      customerName: matchedCustomer?.name,
       date: now.toISOString().slice(0, 10),
       time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       note: note.trim() || undefined,
@@ -187,10 +213,42 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               >
                 <option value="CASH">Cash (نقد)</option>
                 <option value="ONLINE">Online / Bank</option>
-                <option value="UDHAAR">Udhaar (ادھار)</option>
+                <option value="UDHAAR">Udhaar (ادھار کھاتہ)</option>
               </select>
             </div>
           </div>
+
+          {/* Conditional Customer Picker for Udhaar */}
+          {paymentMode === 'UDHAAR' && (
+            <div className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-[var(--text)] flex items-center gap-1.5">
+                  <UserCheck className="w-4 h-4 text-[var(--primary)]" />
+                  <span>Select Khata Customer (گاہک کا انتخاب کریں)</span>
+                </label>
+                <span className="text-[11px] text-[var(--udhaar)] font-medium">
+                  Linked to Customer Ledger
+                </span>
+              </div>
+              {customers.length > 0 ? (
+                <select
+                  value={selectedCustomerId}
+                  onChange={(e) => setSelectedCustomerId(e.target.value)}
+                  className="w-full h-11 px-3 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-sm text-[var(--text)] focus:border-[var(--primary)] outline-none"
+                >
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.nameUrdu}) — Current Udhaar: PKR {c.totalUdhaar.toLocaleString()}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="text-xs text-[var(--text-sec)] py-1">
+                  No customers found. Create a customer in Udhaar Khata first.
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-medium text-[var(--text-sec)] mb-1">

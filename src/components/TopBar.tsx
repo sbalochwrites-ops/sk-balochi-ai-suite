@@ -80,7 +80,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           onClick={() => onSelectTab('structure')}
           className="text-lg font-bold tracking-tight text-[var(--primary)] whitespace-nowrap shrink-0 text-left focus-visible:outline-2 focus-visible:outline-[var(--primary)]"
         >
-          SK Balochi Studio &amp; Khata
+          SK AI Studio
         </button>
 
         {/* Zone 2: 5 concise single-line text navigation links */}
@@ -120,10 +120,10 @@ export const TopBar: React.FC<TopBarProps> = ({
         </div>
       </header>
 
-      {/* Mobile Bottom Tab Bar (Thumb-Zone Ergonomics) */}
+      {/* Mobile Bottom Tab Bar (Solid Background, Thumb-Zone Ergonomics) */}
       <nav
         aria-label="Mobile navigation"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)]/95 backdrop-blur-md border-t border-[var(--border)] grid grid-cols-5 items-center h-16 px-1"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)] border-t border-[var(--border)] shadow-[0_-4px_12px_rgba(0,0,0,0.08)] grid grid-cols-5 items-center h-16 px-1"
       >
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
@@ -134,11 +134,11 @@ export const TopBar: React.FC<TopBarProps> = ({
               type="button"
               onClick={() => onSelectTab(item.id)}
               className={`flex flex-col items-center justify-center min-h-[44px] min-w-[44px] transition-colors py-1 ${
-                isActive ? 'text-[var(--primary)] font-semibold' : 'text-[var(--text-sec)]'
+                isActive ? 'text-[var(--primary)] font-semibold' : 'text-[var(--text-sec)] hover:text-[var(--text)]'
               }`}
             >
               <Icon className="w-5 h-5 shrink-0" />
-              <span className="text-[11px] font-medium tracking-tight mt-1 whitespace-nowrap">
+              <span className="text-[10px] font-medium tracking-tight mt-1 whitespace-nowrap">
                 {item.shortLabel}
               </span>
             </button>

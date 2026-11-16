@@ -64,9 +64,24 @@ export const UdhaarKhataScreen: React.FC<UdhaarKhataScreenProps> = ({
     setBillNo('');
   };
 
+  const formatWhatsAppNumber = (phone: string): string => {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.startsWith('0')) {
+      return '92' + digits.slice(1);
+    }
+    if (!digits.startsWith('92') && digits.length === 10) {
+      return '92' + digits;
+    }
+    return digits;
+  };
+
+  const getReminderMessage = (cust: CustomerEntity) => {
+    return `السلام علیکم ${cust.nameUrdu} صاحب (${cust.name})،\nSK AI Studio کے کھاتے کے مطابق آپ کے ذمے بقایا ادھار رقم PKR ${cust.totalUdhaar.toLocaleString()} واجب الادا ہے۔ براہِ کرم سہولت کے مطابق ادائیگی فرما دیں۔ شکریہ!`;
+  };
+
   const handleCopyWhatsAppReminder = () => {
     if (!selectedCustomer) return;
-    const message = `السلام علیکم ${selectedCustomer.nameUrdu} صاحب (${selectedCustomer.name})،\nSK Balochi Dukan کے کھاتے کے مطابق آپ کے ذمے بقایا ادھار رقم PKR ${selectedCustomer.totalUdhaar.toLocaleString()} واجب الادا ہے۔ براہِ کرم سہولت کے مطابق ادائیگی فرما دیں۔ شکریہ!`;
+    const message = getReminderMessage(selectedCustomer);
     navigator.clipboard.writeText(message);
     setCopiedReminder(true);
     setTimeout(() => setCopiedReminder(false), 2000);
@@ -205,6 +220,16 @@ export const UdhaarKhataScreen: React.FC<UdhaarKhataScreenProps> = ({
                 {/* WhatsApp Reminder & Actions Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2">
+                    <a
+                      href={`https://wa.me/${formatWhatsAppNumber(selectedCustomer.phone)}?text=${encodeURIComponent(getReminderMessage(selectedCustomer))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold transition-colors min-h-[40px]"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Send via WhatsApp (واٹس ایپ بھیجیں)</span>
+                    </a>
+
                     <button
                       type="button"
                       onClick={handleCopyWhatsAppReminder}
@@ -213,12 +238,12 @@ export const UdhaarKhataScreen: React.FC<UdhaarKhataScreenProps> = ({
                       {copiedReminder ? (
                         <>
                           <Check className="w-4 h-4" />
-                          <span>Urdu Reminder Copied!</span>
+                          <span>Reminder Copied!</span>
                         </>
                       ) : (
                         <>
-                          <MessageCircle className="w-4 h-4" />
-                          <span>Copy WhatsApp Reminder (واٹس ایپ تقاضا)</span>
+                          <Copy className="w-4 h-4" />
+                          <span>Copy Message</span>
                         </>
                       )}
                     </button>

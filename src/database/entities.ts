@@ -8,6 +8,8 @@ export interface TransactionEntity {
   type: TransactionType;
   category: string;
   paymentMode: 'CASH' | 'ONLINE' | 'UDHAAR';
+  customerId?: string;
+  customerName?: string;
   date: string; // YYYY-MM-DD
   time: string;
   note?: string;

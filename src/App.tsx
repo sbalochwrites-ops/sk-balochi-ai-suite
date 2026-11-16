@@ -18,15 +18,30 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ScreenTab>('structure');
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [txModalDefaults, setTxModalDefaults] = useState<{
+    type?: 'SALE' | 'EXPENSE';
+    paymentMode?: 'CASH' | 'ONLINE' | 'UDHAAR';
+  }>({
+    type: 'SALE',
+    paymentMode: 'CASH',
+  });
 
   const vm = useAppViewModel();
+
+  const handleOpenTransactionModal = (
+    type: 'SALE' | 'EXPENSE' = 'SALE',
+    paymentMode: 'CASH' | 'ONLINE' | 'UDHAAR' = 'CASH'
+  ) => {
+    setTxModalDefaults({ type, paymentMode });
+    setIsTxModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] pb-28 md:pb-12">
       <TopBar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        onQuickAddTransaction={() => setIsTxModalOpen(true)}
+        onQuickAddTransaction={() => handleOpenTransactionModal('SALE', 'CASH')}
       />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-6">
@@ -42,8 +57,11 @@ export default function App() {
             setTxFilter={vm.setTxFilter}
             txSearch={vm.txSearch}
             setTxSearch={vm.setTxSearch}
-            onOpenNewEntry={() => setIsTxModalOpen(true)}
+            onOpenNewEntry={() => handleOpenTransactionModal('SALE', 'CASH')}
+            onOpenNewEntryWithType={handleOpenTransactionModal}
             onDeleteTransaction={vm.removeTransaction}
+            onNavigateTab={setActiveTab}
+            totalCustomersCount={vm.customers.length}
           />
         )}
 
@@ -83,6 +101,8 @@ export default function App() {
         isOpen={isTxModalOpen}
         onClose={() => setIsTxModalOpen(false)}
         onSave={vm.addTransaction}
+        initialType={txModalDefaults.type}
+        initialPaymentMode={txModalDefaults.paymentMode}
       />
 
       <CustomerModal

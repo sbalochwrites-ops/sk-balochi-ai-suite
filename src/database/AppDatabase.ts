@@ -416,4 +416,41 @@ export class AppDatabase {
     };
     this.persist();
   }
+
+  public exportBackupJson(): string {
+    return JSON.stringify(
+      {
+        appName: 'SK AI Studio',
+        exportedAt: new Date().toISOString(),
+        version: 1,
+        data: this.state,
+      },
+      null,
+      2
+    );
+  }
+
+  public importBackupJson(rawJson: string): { success: boolean; message: string } {
+    try {
+      const parsed = JSON.parse(rawJson);
+      const data = parsed.data || parsed;
+      if (!Array.isArray(data.transactions) || !Array.isArray(data.customers)) {
+        return {
+          success: false,
+          message: 'Invalid backup file structure: missing transactions or customers array.',
+        };
+      }
+      this.state = {
+        transactions: data.transactions,
+        customers: data.customers,
+        khataEntries: Array.isArray(data.khataEntries) ? data.khataEntries : [],
+        datasets: Array.isArray(data.datasets) ? data.datasets : this.state.datasets,
+        cloudTopics: Array.isArray(data.cloudTopics) ? data.cloudTopics : this.state.cloudTopics,
+      };
+      this.persist();
+      return { success: true, message: 'Backup restored successfully!' };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Failed to parse JSON backup.' };
+    }
+  }
 }
