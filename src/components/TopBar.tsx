@@ -6,6 +6,10 @@ import {
   Database,
   ChartColumn,
   Plus,
+  Sun,
+  Moon,
+  Fingerprint,
+  ShieldCheck,
 } from 'lucide-react';
 
 export type ScreenTab =
@@ -19,6 +23,10 @@ interface TopBarProps {
   activeTab: ScreenTab;
   onSelectTab: (tab: ScreenTab) => void;
   onQuickAddTransaction: () => void;
+  isDark: boolean;
+  onToggleTheme: () => void;
+  isBiometricEnabled: boolean;
+  onOpenBiometricSettings: () => void;
 }
 
 const NAV_ITEMS: {
@@ -69,11 +77,15 @@ export const TopBar: React.FC<TopBarProps> = ({
   activeTab,
   onSelectTab,
   onQuickAddTransaction,
+  isDark,
+  onToggleTheme,
+  isBiometricEnabled,
+  onOpenBiometricSettings,
 }) => {
   return (
     <>
       {/* 3-Zone Top Bar Contract */}
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-8 px-6 h-16 bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--border)]">
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-4 md:gap-8 px-4 md:px-6 h-16 bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--border)]">
         {/* Zone 1: Single text element wordmark */}
         <button
           type="button"
@@ -107,12 +119,49 @@ export const TopBar: React.FC<TopBarProps> = ({
           })}
         </nav>
 
-        {/* Zone 3: 1 primary action */}
-        <div className="flex items-center shrink-0">
+        {/* Zone 3: Theme toggle, Biometric security, and Primary CTA */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onToggleTheme}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-pressed={isDark}
+            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className="inline-flex items-center justify-center min-h-[40px] min-w-[40px] rounded-lg border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-2)] text-[var(--text)] transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-[var(--primary)]"
+          >
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenBiometricSettings}
+            aria-label={
+              isBiometricEnabled
+                ? 'Biometric Lock Active — Open Security Settings'
+                : 'Configure Biometric Authentication'
+            }
+            title={
+              isBiometricEnabled
+                ? 'Biometric Lock Active (Manage / Lock Session)'
+                : 'Set up Biometric Lock (WebAuthn)'
+            }
+            className={`inline-flex items-center justify-center min-h-[40px] min-w-[40px] rounded-lg border transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-[var(--primary)] ${
+              isBiometricEnabled
+                ? 'border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)] hover:opacity-90'
+                : 'border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-2)] text-[var(--text)]'
+            }`}
+          >
+            {isBiometricEnabled ? (
+              <ShieldCheck className="w-4 h-4" />
+            ) : (
+              <Fingerprint className="w-4 h-4" />
+            )}
+          </button>
+
           <button
             type="button"
             onClick={onQuickAddTransaction}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#1B5E20] hover:bg-[#114216] rounded-lg transition-colors whitespace-nowrap shrink-0 min-h-[40px]"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs font-semibold text-white bg-[#1B5E20] hover:bg-[#114216] rounded-lg transition-colors whitespace-nowrap shrink-0 min-h-[40px]"
           >
             <Plus className="w-4 h-4" />
             <span>New Entry</span>

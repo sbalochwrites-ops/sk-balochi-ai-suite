@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +25,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // Live Gemini AI Execution Endpoint
 app.post('/api/gemini/run-prompt', async (req: Request, res: Response) => {
   try {
-    const { prompt, model, systemInstruction } = req.body;
+    const { prompt, model, systemInstruction, thinkingLevel } = req.body;
 
     if (!prompt || typeof prompt !== 'string') {
       res.status(400).json({
@@ -54,61 +54,135 @@ app.post('/api/gemini/run-prompt', async (req: Request, res: Response) => {
       },
     });
 
-    // Map legacy model names to current 2026 production models
-    let requestedModel = model;
-    if (!requestedModel || requestedModel === 'gemini-2.5-flash') {
-      requestedModel = 'gemini-3.8-flash';
-    } else if (requestedModel === 'gemini-2.5-pro') {
-      requestedModel = 'gemini-3.1-pro-preview';
-    }
+    const ALLOWED_MODELS = new Set([
+      'gemini-4-hydrogen',
+      'gemini-3.1-flash-lite',
+    ]);
 
-    const candidateModels = Array.from(
-      new Set([
-        requestedModel,
-        'gemini-3.8-flash',
-        'gemini-3.1-pro-preview',
-        'gemini-2.5-flash',
-      ].filter(Boolean))
-    ) as string[];
+    const primaryModel =
+      typeof model === 'string' && ALLOWED_MODELS.has(model)
+        ? model
+        : 'gemini-4-hydrogen';
 
-    let lastError: any = null;
+    const resolvedThinkingLevel =
+      thinkingLevel === 'HIGH'
+        ? ThinkingLevel.HIGH
+        : thinkingLevel === 'MEDIUM'
+          ? ThinkingLevel.MEDIUM
+          : ThinkingLevel.LOW;
+
+    const candidateModels =
+      primaryModel === 'gemini-4-hydrogen'
+        ? ['gemini-4-hydrogen', 'gemini-3.1-flash-lite']
+        : ['gemini-3.1-flash-lite', 'gemini-4-hydrogen'];
+
+    const isTransientOverload = (err: unknown): boolean => {
+      const msg = String((err as { message?: string })?.message || err || '');
+      const status = (err as { status?: number })?.status;
+      return (
+        status === 503 ||
+        msg.includes('503') ||
+        msg.includes('UNAVAILABLE') ||
+        msg.includes('high demand')
+      );
+    };
+
+    const sleep = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+
+    let lastError: unknown = null;
     let outputText = '';
     let usedModel = candidateModels[0];
 
     for (const curModel of candidateModels) {
-      try {
-        const response = await ai.models.generateContent({
-          model: curModel,
-          contents: prompt,
-          config: systemInstruction
-            ? {
-                systemInstruction,
-              }
-            : undefined,
-        });
+      let attempt = 0;
+      const maxAttempts = 2;
 
-        outputText = response.text ?? '';
-        usedModel = curModel;
-        lastError = null;
+      while (attempt < maxAttempts) {
+        attempt += 1;
+        try {
+          const config: Record<string, unknown> = {};
+          if (systemInstruction) {
+            config.systemInstruction = systemInstruction;
+          }
+          if (curModel === 'gemini-4-hydrogen') {
+            config.thinkingConfig = {
+              thinkingLevel: resolvedThinkingLevel,
+            };
+          }
+
+          const response = await ai.models.generateContent({
+            model: curModel,
+            contents: prompt,
+            config: Object.keys(config).length > 0 ? config : undefined,
+          });
+
+          outputText = response.text ?? '';
+          usedModel = curModel;
+          lastError = null;
+          break;
+        } catch (err: unknown) {
+          lastError = err;
+          if (attempt < maxAttempts && isTransientOverload(err)) {
+            await sleep(800);
+            continue;
+          }
+          console.warn(
+            `[Gemini API] Failed with model ${curModel}:`,
+            (err as { message?: string })?.message || err
+          );
+          break;
+        }
+      }
+
+      if (!lastError && outputText) {
         break;
-      } catch (err: any) {
-        lastError = err;
-        console.warn(`[Gemini API] Failed with model ${curModel}:`, err?.message || err);
       }
     }
 
     if (lastError && !outputText) {
-      let cleanMessage = lastError?.message || 'Gemini generation failed';
+      const errObj = lastError as { message?: string; status?: number };
+      let cleanMessage = errObj?.message || 'Gemini generation failed.';
+      let httpStatus = typeof errObj?.status === 'number' ? errObj.status : 500;
+
       try {
         const parsed = JSON.parse(cleanMessage);
         if (parsed?.error?.message) {
           cleanMessage = parsed.error.message;
         }
+        if (typeof parsed?.error?.code === 'number') {
+          httpStatus = parsed.error.code;
+        }
       } catch {
-        // Not a JSON string
+        // Error message is plain text, not JSON
       }
 
-      res.status(500).json({
+      if (
+        httpStatus === 429 ||
+        cleanMessage.includes('RESOURCE_EXHAUSTED') ||
+        cleanMessage.toLowerCase().includes('quota')
+      ) {
+        httpStatus = 429;
+        cleanMessage =
+          'Gemini API quota limit reached. Please wait a moment and try again, or verify your attached API key in Settings > Secrets.';
+      } else if (
+        httpStatus === 401 ||
+        httpStatus === 403 ||
+        cleanMessage.includes('API_KEY_INVALID') ||
+        cleanMessage.includes('PERMISSION_DENIED')
+      ) {
+        httpStatus = 403;
+        cleanMessage =
+          'Gemini API authentication failed. Please check your GEMINI_API_KEY in Settings > Secrets.';
+      } else if (httpStatus === 503 || cleanMessage.includes('UNAVAILABLE')) {
+        httpStatus = 503;
+        cleanMessage =
+          'Gemini models are temporarily experiencing high demand. Please retry in a few seconds.';
+      } else if (httpStatus < 400 || httpStatus > 599) {
+        httpStatus = 500;
+      }
+
+      res.status(httpStatus).json({
         success: false,
         error: cleanMessage,
       });
@@ -121,11 +195,13 @@ app.post('/api/gemini/run-prompt', async (req: Request, res: Response) => {
       model: usedModel,
       generatedAt: new Date().toISOString(),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Gemini API Error:', error);
     res.status(500).json({
       success: false,
-      error: error?.message || 'Failed to generate response from Gemini API',
+      error:
+        (error as { message?: string })?.message ||
+        'Failed to generate response from Gemini API',
     });
   }
 });

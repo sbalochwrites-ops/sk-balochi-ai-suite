@@ -782,7 +782,7 @@ export default function App() {
 ];
 
 const FULL_ASCII_TREE = `SK_AI_Studio/
-├── server.ts                         # Express + Vite SSR/Middleware + Gemini 2.5 Flash Proxy
+├── server.ts                         # Express + Vite SSR/Middleware + Gemini 4 Hydrogen Proxy
 │
 ├── database/                         # 01. ڈیٹا بیس لیئر (Room / Local Persistence)
 │   ├── AppDatabase.kt (.ts)          # مرکزی سنگلٹن ڈیٹا بیس، JSON بیک اپ اور ٹیبل کنفیگریشن
@@ -801,19 +801,25 @@ const FULL_ASCII_TREE = `SK_AI_Studio/
 │   ├── ProjectStructureScreen.tsx    # تمام کمپونینٹس، DAO، ڈیٹا بیس اور سکرینز کا ٹری
 │   ├── RoznamchaScreen.tsx           # روزانہ بکری، خرچہ اور نقد گلہ ڈیش بورڈ
 │   ├── UdhaarKhataScreen.tsx         # گاہک ادھار کھاتہ، لیجر اور براہِ راست واٹس ایپ
-│   ├── DatasetStudioScreen.tsx       # AI Studio Datasets & لائیو Gemini 2.5 Flash ٹیسٹر
+│   ├── DatasetStudioScreen.tsx       # AI Studio Datasets & لائیو Gemini 4 Hydrogen ٹیسٹر
 │   └── ReportsScreen.tsx             # مالیاتی رپورٹس، D3 رجحان چارٹ اور JSON بیک اپ
 │
 ├── components/                       # 05. ری یوزایبل کمپونینٹس (UI Components)
-│   ├── TopBar.tsx                    # ڈیسک ٹاپ ٹاپ بار اور موبائل باٹم نیویگیشن
+│   ├── TopBar.tsx                    # ٹاپ بار مع تھیم ٹوگل، بایومیٹرک لاک اور موبائل نیویگیشن
+│   ├── BiometricLockScreen.tsx       # WebAuthn فنگر پرنٹ / فیس آئی ڈی سیشن لاک سکرین
+│   ├── BiometricSettingsModal.tsx    # WebAuthn پاس کی رجسٹریشن اور ریکوری پن سیٹنگز
 │   ├── DashboardQuickActionWidgets.tsx# روزانہ بکری اور ادھار کے فوری ڈیش بورڈ ویجٹس
 │   ├── TransactionModal.tsx          # بکری اور خرچہ اندراج مع گاہک ادھار لنک
 │   ├── CustomerModal.tsx             # نیا گاہک کھاتہ بنانے کا ڈائیلاگ
 │   └── WeeklyProfitTrendChart.tsx    # 7-Day انٹرایکٹو ویکٹر D3 گراف
 │
-└── config/                           # 06. اینڈرائیڈ گریڈل اور مین انٹری پوائنٹ
+├── services/ & hooks/                # 06. سیکیورٹی اور گلوبل تھیم ہکس
+│   ├── biometricAuth.ts              # Web Authentication API (WebAuthn) + SHA-256 PIN
+│   └── useTheme.ts                   # لائٹ / ڈارک موڈ ٹوگل اور روٹ CSS ویری ایبل سنک
+│
+└── config/                           # 07. اینڈرائیڈ گریڈل اور مین انٹری پوائنٹ
     ├── build.gradle.kts              # Room, Hilt, Coroutines, Jetpack Compose Setup
-    └── MainActivity.kt (App.tsx)     # روٹ نیویگیشن اور تھیم کنٹینر`;
+    └── MainActivity.kt (App.tsx)     # روٹ نیویگیشن، تھیم اور بایومیٹرک گارڈ کنٹینر`;
 
 interface ProjectStructureScreenProps {
   onNavigateTab: (tab: ScreenTab) => void;

@@ -53,11 +53,12 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
     variables: string[];
   } | null>(null);
   const [variableValues, setVariableValues] = useState<Record<string, string>>({});
-  const [selectedModel, setSelectedModel] = useState<
-    'gemini-3.8-flash' | 'gemini-3.1-pro-preview' | 'gemini-2.5-flash'
-  >('gemini-3.8-flash');
+  const [selectedPreset, setSelectedPreset] = useState<
+    'hydrogen-low' | 'hydrogen-medium' | 'hydrogen-high'
+  >('hydrogen-low');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationResult, setGenerationResult] = useState<string | null>(null);
+  const [usedModel, setUsedModel] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [copiedResult, setCopiedResult] = useState(false);
   const [executionTimeMs, setExecutionTimeMs] = useState<number | null>(null);
@@ -87,6 +88,7 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
     });
     setVariableValues(initialVars);
     setGenerationResult(null);
+    setUsedModel(null);
     setGenerationError(null);
     setExecutionTimeMs(null);
   };
@@ -107,7 +109,15 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
     setIsGenerating(true);
     setGenerationError(null);
     setGenerationResult(null);
+    setUsedModel(null);
     const startTime = Date.now();
+
+    const thinkingLevel =
+      selectedPreset === 'hydrogen-high'
+        ? 'HIGH'
+        : selectedPreset === 'hydrogen-medium'
+          ? 'MEDIUM'
+          : 'LOW';
 
     try {
       const res = await fetch('/api/gemini/run-prompt', {
@@ -115,7 +125,8 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: promptToRun,
-          model: selectedModel,
+          model: 'gemini-4-hydrogen',
+          thinkingLevel,
         }),
       });
 
@@ -126,10 +137,12 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
         setGenerationError(data.error || 'Failed to generate response from Gemini API.');
       } else {
         setGenerationResult(data.text);
+        setUsedModel(data.model || 'gemini-4-hydrogen');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setGenerationError(
-        err?.message || 'Network error: could not connect to local Express server at /api/gemini/run-prompt.'
+        (err as { message?: string })?.message ||
+          'Network error: could not connect to local Express server at /api/gemini/run-prompt.'
       );
     } finally {
       setIsGenerating(false);
@@ -176,13 +189,13 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
         <div className="flex items-center gap-2 text-xs text-[var(--text-sec)]">
           <span>DatasetDao</span>
           <span aria-hidden="true">·</span>
-          <span>Google AI Studio &amp; Gemini 2.5 Flash API</span>
+          <span>Google AI Studio &amp; Gemini 4 Hydrogen API</span>
         </div>
         <h1 className="text-2xl font-bold text-[var(--text)] mt-1">
           SK AI Studio — AI Datasets &amp; Gemini Prompt Workflows
         </h1>
         <p className="text-sm text-[var(--text-sec)] mt-1">
-          Copy dataset definitions directly into Google AI Studio, test prompt workflows live with Gemini 2.5 Flash, or inspect GKE &amp; Pub/Sub Cloud Assist architectures.
+          Copy dataset definitions directly into Google AI Studio, test prompt workflows live with Gemini 4 Hydrogen, or inspect GKE &amp; Pub/Sub Cloud Assist architectures.
         </p>
       </div>
 
@@ -506,7 +519,7 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
                       Live Gemini AI Prompt Runner
                     </h2>
                     <span className="px-2 py-0.5 rounded text-[10px] font-mono-num font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                      {selectedModel}
+                      gemini-4-hydrogen
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-sec)] mt-0.5">
@@ -575,22 +588,25 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
                   Model:
                 </label>
                 <select
-                  value={selectedModel}
+                  value={selectedPreset}
                   onChange={(e) =>
-                    setSelectedModel(
-                      e.target.value as 'gemini-3.8-flash' | 'gemini-3.1-pro-preview' | 'gemini-2.5-flash'
+                    setSelectedPreset(
+                      e.target.value as
+                        | 'hydrogen-low'
+                        | 'hydrogen-medium'
+                        | 'hydrogen-high'
                     )
                   }
                   className="h-9 px-2.5 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-xs text-[var(--text)] outline-none focus:border-[var(--primary)]"
                 >
-                  <option value="gemini-3.8-flash">
-                    gemini-3.8-flash (Latest Fast Model)
+                  <option value="hydrogen-low">
+                    gemini-4-hydrogen · Fast (Recommended)
                   </option>
-                  <option value="gemini-3.1-pro-preview">
-                    gemini-3.1-pro-preview (Deep Reasoning)
+                  <option value="hydrogen-medium">
+                    gemini-4-hydrogen · Balanced Reasoning
                   </option>
-                  <option value="gemini-2.5-flash">
-                    gemini-2.5-flash (Legacy)
+                  <option value="hydrogen-high">
+                    gemini-4-hydrogen · Deep Reasoning
                   </option>
                 </select>
               </div>
@@ -633,6 +649,11 @@ export const DatasetStudioScreen: React.FC<DatasetStudioScreenProps> = ({
                   <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)]">
                     <Sparkles className="w-4 h-4 text-emerald-600" />
                     <span>Gemini AI Generated Output</span>
+                    {usedModel && (
+                      <span className="text-[11px] font-mono-num font-normal text-[var(--text-sec)]">
+                        ({usedModel})
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     {executionTimeMs && (

@@ -149,8 +149,8 @@ export const WeeklyProfitTrendChart: React.FC<WeeklyProfitTrendChartProps> = ({
         >
           <defs>
             <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1B5E20" stopOpacity="0.32" />
-              <stop offset="100%" stopColor="#1B5E20" stopOpacity="0.02" />
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.32" />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.02" />
             </linearGradient>
           </defs>
 
@@ -201,7 +201,7 @@ export const WeeklyProfitTrendChart: React.FC<WeeklyProfitTrendChartProps> = ({
             <path
               d={lineGenerator(dailyData)!}
               fill="none"
-              stroke="#1B5E20"
+              stroke="var(--primary)"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -231,8 +231,8 @@ export const WeeklyProfitTrendChart: React.FC<WeeklyProfitTrendChartProps> = ({
                   cx={cx}
                   cy={cy}
                   r={isHovered ? 6 : 4}
-                  fill={d.netProfit >= 0 ? '#1B5E20' : '#C62828'}
-                  stroke="white"
+                  fill={d.netProfit >= 0 ? 'var(--primary)' : 'var(--expense)'}
+                  stroke="var(--surface)"
                   strokeWidth="2"
                   className="transition-all duration-150 shadow"
                 />
